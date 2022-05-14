@@ -1,19 +1,22 @@
 from pydicom.filereader import dcmread
-import multiprocessing
+from pathlib import Path
 import numpy
 
-def getAllData(files):
-        
-        # loop through all the files read them and store them in a list
-        no_process = 3
-        slices = []
-        with multiprocessing.Pool(processes = no_process) as p:
-            slices = p.map(read, files)
+def getAllData(files=None, path=None):
+    slices = []
+    if (files is None):
+        directory = Path(path)
+        dicom_list = list(directory.glob('*.dcm'))
+        for dicom in dicom_list:
+            slices.append(read(dicom))
+    else:
+        for file in files:
+            slices.append(read(file.file))
 
-        return slices
+    return slices
 
 def read(dicom):
-    return dcmread(dicom.file)
+    return dcmread(dicom)
 
 def to3dArray(slices):
 
