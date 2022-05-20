@@ -28,7 +28,7 @@ async def upload_dicom(files: List[UploadFile] = File(...), db: Session = Depend
     return await DicomRepo.upload(db=db, files=files)
 
 @app.get('/dicom/3d', tags=["Dicoms"])
-async def get_3d_data(path: str = Form(...)):
+async def get_3d_data(path: str):
     return await DicomRepo.get_3d_data(path=path)
 
 ### PATIENTS ###
