@@ -4,7 +4,7 @@ from app import models, schemas
 class SeriesRepo:
 
     async def create(db: Session, item: schemas.SeriesCreate):
-        db_item = models.Series(instanceUID=item.instanceUID, studyID=item.studyID, description=item.description)
+        db_item = models.Series(instanceUID=item.instanceUID, studyID=item.studyID, filepath=item.filepath, description=item.description)
         db.add(db_item)
         db.commit()
         db.refresh(db_item)

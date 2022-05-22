@@ -9,6 +9,7 @@ class Series(Base):
     id = Column(Integer, primary_key=True, index=True)
     studyID = Column(Integer, ForeignKey("studies.id"))
     instanceUID = Column(String, nullable=False)
+    filepath = Column(String, nullable=False)
     description = Column(String, nullable=False)
     
     def __repr__(self):

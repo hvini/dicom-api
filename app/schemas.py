@@ -4,6 +4,7 @@ from pydantic import BaseModel
 class SeriesBase(BaseModel):
     instanceUID: str
     studyID: int
+    filepath: str
     description: str
 
 class SeriesCreate(SeriesBase):

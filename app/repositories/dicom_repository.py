@@ -37,18 +37,18 @@ class DicomRepo:
 
         seriesInstanceUID = slices[0].SeriesInstanceUID
         series = SeriesRepo.fetch_by_id(db, seriesInstanceUID)
+
+        destination = Path(f'./dicoms/{patient.patientID}/{study.instanceUID}/{seriesInstanceUID}')
         if (series is None):
             seriesDescription = slices[0].SeriesDescription
 
-            series = await SeriesRepo.create(db=db, item=schemas.SeriesCreate(instanceUID=seriesInstanceUID, studyID=study.id, description=seriesDescription))
+            series = await SeriesRepo.create(db=db, item=schemas.SeriesCreate(instanceUID=seriesInstanceUID, studyID=study.id, filepath=str(destination), description=seriesDescription))
         
-        InstancesRepo.delete_by_series_id(db=db, _id=series.id)
-
-        destination = Path(f'./dicoms/{patient.patientID}/{study.instanceUID}/{series.instanceUID}')
         isExists = os.path.exists(destination)
         if not isExists:
             os.makedirs(destination)
-        
+
+        InstancesRepo.delete_by_series_id(db=db, _id=series.id)
         for i, slice in enumerate(slices):
             filename = files[i].filename
             await InstancesRepo.create(db=db, item=schemas.InstancesCreate(seriesID=series.id, filename=filename))
