@@ -208,4 +208,6 @@ data.db
 # files
 dicoms/
 
+data.bits
+
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,venv

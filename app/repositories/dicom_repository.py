@@ -2,9 +2,9 @@ from app.repositories.instance_repository import InstancesRepo
 from app.repositories.patient_repository import PatientsRepo
 from app.repositories.study_repository import StudiesRepo
 from app.repositories.serie_repository import SeriesRepo
+from utils.dicom import getAllData, to3dArray
 from fastapi.responses import JSONResponse
 from fastapi import File, UploadFile
-from utils.dicom import getAllData
 from sqlalchemy.orm import Session
 from app import models, schemas
 from pathlib import Path
@@ -57,3 +57,40 @@ class DicomRepo:
             slice.save_as(path)
 
         return JSONResponse(status_code=201, content={'success': True, 'message': 'Files uploaded successfully'})
+
+    async def get_3d_data(path: str):
+        slices = getAllData(path=path)
+        img3d = to3dArray(slices)
+        data = img3d.ravel()
+
+        """ with open('./data.bits', 'wb') as fread:
+            fread.write(data.tobytes()) """
+
+        dimX = slices[0].Rows
+        dimY = slices[0].Columns
+        dimZ = len(slices)
+
+        pixelSpacing = slices[0].PixelSpacing[0]
+
+        scaleX = 0
+        scaleY = 0
+        scaleZ = 0
+        if (pixelSpacing > 0):
+            scaleX = pixelSpacing * dimX
+            scaleY = pixelSpacing * dimY
+            scaleZ = abs(slices[len(slices) - 1].SliceLocation - slices[0].SliceLocation)
+
+        data = {
+            'data': data,
+            'dimX': dimX,
+            'dimY': dimY,
+            'dimZ': dimZ,
+            'pixelSpacing': pixelSpacing,
+            'scaleX': scaleX,
+            'scaleY': scaleY,
+            'scaleZ': scaleZ
+        }
+
+        serialized_data = json.dumps(data)
+
+        return JSONResponse(status_code=200, content=json.loads(serialized_data))
